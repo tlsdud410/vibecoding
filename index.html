@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오늘의 할 일</title>
+  <style>
+    :root {
+      --ink: #20242b;
+      --muted: #747b86;
+      --line: #e5e7eb;
+      --paper: #ffffff;
+      --accent: #e56b4f;
+      --accent-dark: #c9543a;
+      --soft: #fff4ef;
+      --shadow: 0 24px 60px rgba(52, 39, 32, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 15%, rgba(255, 218, 195, 0.8), transparent 30%),
+        radial-gradient(circle at 90% 85%, rgba(255, 239, 180, 0.7), transparent 28%),
+        #f8f5f1;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .app {
+      width: min(100%, 620px);
+      padding: clamp(28px, 6vw, 52px);
+      background: var(--paper);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--accent);
+      font-family: Arial, sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.25rem, 7vw, 4rem);
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 18px 0 30px;
+      color: var(--muted);
+      font-family: Arial, sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    input[type="text"] {
+      min-width: 0;
+      flex: 1;
+      padding: 15px 16px;
+      color: var(--ink);
+      background: #fafafa;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      outline: none;
+      font: 0.95rem Arial, sans-serif;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(229, 107, 79, 0.14);
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+    }
+
+    .add-button {
+      padding: 0 22px;
+      color: white;
+      background: var(--accent);
+      border-radius: 4px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .add-button:hover { background: var(--accent-dark); }
+
+    .list-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+      font-family: Arial, sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    #count { color: var(--muted); font-weight: 400; letter-spacing: 0; text-transform: none; }
+
+    #todo-list { padding: 0; margin: 0; list-style: none; }
+
+    .todo-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 17px 0;
+      border-bottom: 1px solid var(--line);
+      animation: appear 180ms ease-out;
+    }
+
+    .todo-item label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+      cursor: pointer;
+      font-size: 1.05rem;
+      line-height: 1.4;
+    }
+
+    .todo-item input[type="checkbox"] {
+      width: 19px;
+      height: 19px;
+      flex: 0 0 auto;
+      margin: 0;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .todo-item.completed label span {
+      color: var(--muted);
+      text-decoration: line-through;
+      text-decoration-thickness: 1px;
+    }
+
+    .delete-button {
+      padding: 6px 4px;
+      color: var(--muted);
+      background: transparent;
+      font-size: 0.78rem;
+    }
+
+    .delete-button:hover { color: var(--accent-dark); }
+
+    .empty-message {
+      padding: 34px 0 18px;
+      color: var(--muted);
+      text-align: center;
+      font-family: Arial, sans-serif;
+      font-size: 0.9rem;
+    }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 440px) {
+      body { padding: 14px; }
+      .app { padding: 28px 22px; }
+      .input-row { flex-direction: column; }
+      .add-button { min-height: 48px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <p class="eyebrow">A little progress</p>
+    <h1>오늘의 할 일</h1>
+    <p class="subtitle">작은 일도 하나씩 끝내면 충분해요.</p>
+
+    <form class="input-row" id="todo-form">
+      <input id="todo-input" type="text" placeholder="새로운 할 일을 적어보세요" autocomplete="off" aria-label="할 일 입력">
+      <button class="add-button" type="submit">추가하기</button>
+    </form>
+
+    <section aria-labelledby="list-title">
+      <div class="list-heading">
+        <span id="list-title">Task list</span>
+        <span id="count">0개 남음</span>
+      </div>
+      <ul id="todo-list"></ul>
+      <p class="empty-message" id="empty-message">아직 등록된 할 일이 없어요.</p>
+    </section>
+  </main>
+
+  <script>
+    const form = document.querySelector('#todo-form');
+    const input = document.querySelector('#todo-input');
+    const list = document.querySelector('#todo-list');
+    const count = document.querySelector('#count');
+    const emptyMessage = document.querySelector('#empty-message');
+
+    function updateView() {
+      const items = [...list.querySelectorAll('.todo-item')];
+      const remaining = items.filter((item) => !item.classList.contains('completed')).length;
+      count.textContent = `${remaining}개 남음`;
+      emptyMessage.hidden = items.length > 0;
+    }
+
+    function addTodo(text) {
+      const item = document.createElement('li');
+      item.className = 'todo-item';
+      item.innerHTML = `
+        <label>
+          <input type="checkbox">
+          <span></span>
+        </label>
+        <button class="delete-button" type="button" aria-label="할 일 삭제">삭제</button>
+      `;
+      item.querySelector('span').textContent = text;
+      list.append(item);
+      updateView();
+    }
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const text = input.value.trim();
+      if (!text) {
+        input.focus();
+        return;
+      }
+      addTodo(text);
+      input.value = '';
+      input.focus();
+    });
+
+    list.addEventListener('change', (event) => {
+      if (!event.target.matches('input[type="checkbox"]')) return;
+      event.target.closest('.todo-item').classList.toggle('completed', event.target.checked);
+      updateView();
+    });
+
+    list.addEventListener('click', (event) => {
+      if (!event.target.matches('.delete-button')) return;
+      event.target.closest('.todo-item').remove();
+      updateView();
+    });
+
+    updateView();
+  </script>
+</body>
+</html>
